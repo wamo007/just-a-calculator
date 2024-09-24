@@ -1,4 +1,4 @@
-const operators = ['+','-','*','/','%','='];
+const operators = ['+','-','*','/','%'];
 
 //Basic Operations
 function addition(a, b) {
@@ -35,6 +35,7 @@ const displayInput = document.querySelector('.input'); //imports display's input
 const displayOutput = document.querySelector('.output'); //imports display's answer side
 const operationsArray = document.querySelectorAll('.operations'); //imports all signs (except pound sign)
 const numberArray = document.querySelectorAll('.number'); //imports numpad
+const equals = document.querySelector('.equals');
 
 displayOutput.textContent = 0;
 
@@ -42,6 +43,11 @@ displayOutput.textContent = 0;
 const getFirstNum = function() {
     numberArray.forEach(function(number) {
         number.addEventListener('click', function() {
+            if (result && !inputSign) {
+                inputNum = '';
+                result = '';
+                displayOutput.textContent = 0;
+            }
             if (!inputSign) {
                 inputNum += `${number.textContent}`;
                 if (inputNum.length > 11) {
@@ -114,9 +120,9 @@ function operate() {
     }
     displayOutput.textContent = result;
 
-    inputNum = result;
     secondNum = '';
     inputSign = '';
+    inputNum = result;
 };
 
 //Listener for AC button
@@ -130,8 +136,11 @@ document.querySelector('.clean').addEventListener('click', function() {
 });
 
 //Listener for the Equal (=) sign
-document.querySelector('.equals').addEventListener('click', () =>
-    ((inputNum) && (secondNum) && (inputSign)) ? operate : displayOutput.textContent);
+equals.addEventListener('click', function() {
+    if (inputNum && secondNum && inputSign) {
+        operate();
+    }
+});
 
 //Listener for the Per cent (%) sign
 document.querySelector('.percent').addEventListener('click', function() {
@@ -201,6 +210,36 @@ document.querySelector('.pound').addEventListener('click', function() {
         }
     }
 })
+
+//Keyboard listener for numbers and a backspace
+document.addEventListener('keydown', function(event) {
+    // Check if the key pressed is a number or a backspace
+    let isNumber = (event.keyCode >= 48 && event.keyCode <= 57) || 
+                   (event.keyCode >= 96 && event.keyCode <= 105);
+    let backspace = event.keyCode == 8;
+
+    if (!isNumber && !backspace) {
+        event.preventDefault();  // Prevent any other characters from being entered
+    } else {
+        if (!inputSign) {
+            if (isNumber) {
+                inputNum += event.key.toString();
+                displayInput.textContent = inputNum.substring(0, 11);
+            } else if (backspace) {
+                inputNum = inputNum.slice(0, -1);  // Remove the last digit
+                displayInput.textContent = inputNum.substring(0, 11);
+            }
+        } else {
+            if (isNumber) {
+                secondNum += event.key.toString();
+                displayInput.textContent = secondNum.substring(0, 11);
+            } else if (backspace) {
+                secondNum = secondNum.slice(0, -1);
+                displayInput.textContent = secondNum.substring(0, 11);
+            }
+        }
+    };
+});
 
 //Functions are called in the order below
 getFirstNum();
